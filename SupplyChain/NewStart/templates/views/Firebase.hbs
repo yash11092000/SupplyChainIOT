@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+    {{!--
+    <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script> --}}
+    {{>header}}
+    {{>style}}
+
+</head>
+
+<body>
+    {{>navbar}}
+    <div class="container2">
+        <div class="box1 mt-5" style="width: 500px; height: 300px;background-color: white;">
+            <canvas id="chart"></canvas>
+        </div>
+        <div class="box1 mt-5" style="width: 500px; height: 300px;background-color: white;">
+            <canvas id="chartline"></canvas>
+        </div>
+        <div class="box2">
+            <h1 class="link">Get Live Feeds</h1>
+            <h2 style="color: aliceblue;">Data </h2>
+            <input type="text" class="text-center" placeholder="Enter Id" id="id" autocomplete="off">
+            <p id="data" class="link"></p>
+            <button id="get" class="btn btn-outline-success">Get Data</button>
+            <button id="start" class="btn btn-outline-success">Start</button>
+            <button id="stop" class="btn btn-outline-success">Stop</button>
+        </div>
+    </div>
+    {{>footer}}
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0/dist/chartjs-adapter-luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@0.2.1"></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0/dist/chartjs-plugin-streaming.min.js"></script>
+
+    <script type="module">
+
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkEIz5CQ2v7BmZ1LFFV3-MYSMKsoQpaMM",
+            authDomain: "fetchdata-830de.firebaseapp.com",
+            databaseURL: "https://fetchdata-830de-default-rtdb.firebaseio.com",
+            projectId: "fetchdata-830de",
+            storageBucket: "fetchdata-830de.appspot.com",
+            messagingSenderId: "635703859459",
+            appId: "1:635703859459:web:03e9782c91d61d54e7f136"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        import { getDatabase, ref, set, child, get }
+            from "https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js";
+
+        const db = getDatabase();
+        const dbref = ref(db);
+        document.getElementById("get").onclick = function () {
+
+            var data = document.getElementById("data");
+            var id = document.getElementById("id");
+            get(child(dbref, "data/" + id.value)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    console.log(snapshot.val())
+                    data.innerText = "Tempreture is : " + snapshot.val().tempreture + "\nhumidity is : " + snapshot.val().humidity + "\nlatitude : " + snapshot.val().latitude + "\nlongitude is : " + snapshot.val().longitude;
+                }
+                else {
+                    alert("No data found")
+                }
+            }).catch((e) => {
+                alert(e);
+            })
+        }
+        var arr = [0];
+        var arr2 = [0];
+        var startButton = document.getElementById("start");
+        startButton.onclick = alertMe;
+        var myinterval;
+        var graph;
+        function alertMe() {
+            myinterval = setInterval(function () {
+                arr.shift();
+                arr2.shift();
+                var data = document.getElementById("data");
+                var id = document.getElementById("id");
+                get(child(dbref, "data/" + id.value)).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        console.log(snapshot.val())
+                        data.innerText = "Tempreture is : " + snapshot.val().tempreture + "\nhumidity is : " + snapshot.val().humidity + "\nlatitude : " + snapshot.val().latitude + "\nlongitude is : " + snapshot.val().longitude;
+                        arr.push(snapshot.val().tempreture);
+                        arr2.push(snapshot.val().humidity);
+                        console.log(arr)
+                        console.log(arr2)
+                    }
+                    else {
+                        alert("No data found")
+                    }
+                }).catch((e) => {
+                })
+            }, 3000);
+        }
+        var stopButton = document.getElementById("stop").onclick = stopme;
+        //setup block   
+        const data = {
+            labels: [],
+            datasets: [{
+                label: 'Tempreture',
+                data: [arr],
+                backgroundColor:
+                    'rgba(255, 99, 132, 0.2)',
+                borderColor:
+                    'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        }
+
+
+        // config block
+        const config = {
+            type: 'bar',
+            data,
+            options: {
+                plugins: {
+                    streaming: {
+                        refresh: 2000
+                    },
+                },
+                scales: {
+                    x: {
+                        type: 'realtime',
+                        realtime: {
+                            duration: 20000,
+                            onRefresh: chart => {
+                                chart.data.datasets.forEach(dataset => {
+                                    dataset.data.push({
+                                        x: Date.now(),
+                                        y: arr[0]
+                                    });
+                                });
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        }
+
+        // render init block
+        const chart = new Chart(
+            document.getElementById('chart'),
+            config
+        );
+
+
+// 2nd chart
+ //setup block   
+        const dataline = {
+            labels: [],
+            datasets: [{
+                type: 'bar',
+                label: 'humidity',
+                data: [arr2],
+                backgroundColor:
+                    'rgba(0,0,255, 0.2)',
+                borderColor:
+                    'rgba(0,0,255, 1)',
+                borderWidth: 1
+            }]
+        }
+
+
+        // config block
+        const configline = {
+            type: 'bar',
+            data : dataline,
+            options: {
+                plugins: {
+                    streaming: {
+                        refresh: 2000
+                    },
+                },
+                scales: {
+                    x: {
+                        type: 'realtime',
+                        realtime: {
+                            duration: 20000,
+                            onRefresh: chart => {
+                                chart.data.datasets.forEach(dataset => {
+                                    dataset.data.push({
+                                        x: Date.now(),
+                                        y: arr2[0]
+                                    });
+                                });
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        }
+
+        // render init block
+        const chartline = new Chart(
+            document.getElementById('chartline'),
+            configline
+        );
+        
+        function stopme() {
+            if (chart.options.plugins.streaming.pause === false) {
+                chart.options.plugins.streaming.pause = true;
+            }
+            else {
+                chart.options.plugins.streaming.pause = false;
+            }
+            chart.update();
+        }
+    </script>
+</body>
+
+</html>

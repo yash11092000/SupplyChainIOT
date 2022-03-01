@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {{>header}}
+    {{>style}}
+</head>
+
+<body>
+    {{>navbar}}
+
+
+
+    <div class="container mt-5 FetchBox">
+        <h1 class="link">Check Your Product Details</h1>
+        <hr class="new2">
+        <h2 class="link text-center mt-2">Get Product Details</h2>
+        <input type="text" placeholder="Enter Id" id="ProdId2" class="text-center">
+        <button id="FetchProd" class="btn btn-outline-success">Fetch Product</button><br>
+
+        <div class="remove link" id="rem">
+            <p id="ProdId" class="link"></p>
+            <p id="ProdName" class="link"></span></p>
+            <p id="ProdQty" class="link"></span></p>
+            <p id="ProdCreatedDate" class="link"></p>
+            <p id="ProdIsPicked" class="link"></span></p>
+            <p id="ProdPickedDate" class="link"></span></p>
+            <p id="ProdIsDelivered" class="link"></p>
+            <p id="ProdDeliveredDate" class="link"></span></p>
+        </div>
+        <a href="data" class="text-center link" id="Data" onMouseOver="this.style.color='white'"
+            onMouseOut="this.style.color='#6ab04c'">GET Live Feeds</a>
+
+        {{>script}}
+    </div>
+    {{>footer}}
+
+</body>
+
+</html>

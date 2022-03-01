@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {{>header}}
+    {{>style}}
+
+</head>
+
+<body>
+    {{>navbar}}
+    <div class="container FetchBox mb-5">
+        <h1 class="link">Create Product And Trigger Delivery</h1>
+        <hr class="new2">
+        <h2 class="link">Create Product</h2>
+        <input type="text" placeholder="Enter ProductName" id="ProdName" class="text-center" required="required">
+        <h2 class="link">Choose a Qty:</h2>
+        <input type="text" placeholder="Enter ProductQty" id="ProdQty" class="text-center" required="required">
+        <select id="qty" name="qty">
+            <option value="Kg">Kg</option>
+            <option value="Ton">ton</option>
+            <option value="Ton">peices</option>
+            <option value="Ton">unit</option>
+        </select>
+        <button id="CreateProd" class="btn btn-outline-success ">Submit</button>
+        <div class="mb-5">
+            <h2 class="link">Trigger Delivery</h2>
+            <input type="text" class="text-center" placeholder="Enter Id" id="ProdId3">
+            <button id="TriggerDel" class="btn btn-outline-success">Triggerdelivery</button>
+        </div>
+    </div>
+
+    {{>script}}
+
+</body>
+
+</html>
